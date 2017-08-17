@@ -129,7 +129,7 @@ namespace ABL
                 }
 
                 string drive = Path.GetPathRoot(path);
-                if (drive != "Y:\\") {
+                if (drive != "X:\\") {
                     MessageBox.Show("Zły folder detalu!");
                     return "Zły folder detalu!";
                 }
@@ -138,7 +138,7 @@ namespace ABL
                 WebClient client = new WebClient();
                 try
                 {
-                    string resp = client.DownloadString("http://abl.pl/engine/addDetail.php?path=" + webPath);
+                    string resp = client.DownloadString("http://192.168.100.161//engine/addDetail.php?path=" + webPath);
                     if (resp != "1")
                     {
                         byte[] bytes = Encoding.Default.GetBytes(resp);

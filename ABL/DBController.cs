@@ -38,6 +38,23 @@ namespace ABL
 
             try
             {
+                /**CREATE TABLE `platewarehousesynced` 
+(   `SheetCode` TEXT(255),
+   `MaterialName` TEXT(50),
+   `QtyAvailable` INTEGER,
+   `GrainDirection` INTEGER,      
+   `Width` FLOAT,                        
+   `Height` FLOAT,
+   `SpecialInfo` TEXT(50),
+   `Comment` MEMO,
+   `SheetType` TEXT(50),
+   `SkeletonFile` TEXT(150),
+   `SkeletonData` MEMO,       
+   `MD5` TEXT(30),
+   `Price` FLOAT,                 
+   `Priority` SMALLINT,          
+   `synced` INTEGER         
+);                    **/
                 OleDbCommand query = new OleDbCommand("CREATE TABLE `platewarehousesynced` ( `MaterialName` VARCHAR(50),`Thickness` FLOAT,`MaterialTypeName` VARCHAR(50),`Clearance` FLOAT,`Comment` text,`synced` INTEGER)");
                 query.ExecuteNonQuery();
             }

@@ -19,7 +19,7 @@ namespace ABL
 
         public static int serwerPort = 8687;
         public static string plateXmlPartsPath = "C:\\Program Files (x86)\\Amada\\AI-CAM\\AIC_Main\\Temp\\";
-        public static string phpScript = "http://abl.pl/autoc.php";
+        public static string phpScript = "http://192.168.100.161/autoc.php";
         //public static string phpScript = "http://serwer1741859.home.pl/autoc.php";
 
         [DllImport("user32.dll")]

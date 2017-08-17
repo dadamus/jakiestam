@@ -65,12 +65,11 @@ namespace ABL.Costing.Plate
             return JsonConvert.SerializeObject(response);
         }
 
-        private List<Mode3Data.ProgramCardPartData> GetPartsData(XmlNodeList partsNode)
+        private Mode3Data.ProgramCardPartData GetPartsData(XmlNodeList partsNode, string path)
         {
-            List<Mode3Data.ProgramCardPartData> partList = new List<Mode3Data.ProgramCardPartData>();
+            Mode3Data.ProgramCardPartData data = new Mode3Data.ProgramCardPartData();
             for (int a = 0; a < partsNode.Count; a++)
             {
-                Mode3Data.ProgramCardPartData data = new Mode3Data.ProgramCardPartData();
                 XmlNode parameter = partsNode.Item(a);
 
                 switch (parameter.Name)
@@ -95,49 +94,49 @@ namespace ABL.Costing.Plate
                         data.PartCount = PartCount;
                         break;
                 }
-
-
-                //Pobieramy xmla partu
-                XmlDocument partXml = new XmlDocument();
-                partXml.Load(this.dir + "/Part_" + data.PartName + ".xml");
-
-                //Najpierw nazwa materialu bo jest w dziwnym miejscu
-                XmlNode LaserMatNameNode = partXml.GetElementsByTagName("LaserMatName").Item(0);
-                data.LaserMatName = LaserMatNameNode.InnerText;
-
-                //Reszta danych
-                XmlNodeList partParameters = partXml.GetElementsByTagName("ExtraData").Item(0).ChildNodes;
-
-                for (int p = partParameters.Count; p > 0; p--)
-                {
-                    XmlNode partParameter= partParameters.Item(p);
-                    
-                    switch(partParameter.Name)
-                    {
-                        case "UnfoldXSize":
-                            data.UnfoldXSize = this.ParseFloat(partParameter.InnerText);
-                            break;
-                        case "UnfoldYSize":
-                            data.UnfoldYSize = this.ParseFloat(partParameter.InnerText);
-                            break;
-                        case "RectangleArea":
-                            data.RectangleArea = this.ParseFloat(partParameter.InnerText);
-                            break;
-                        case "RectangleAreaW":
-                            data.RectangleAreaW = this.ParseFloat(partParameter.InnerText);
-                            break;
-                        case "RectangleAreaWO":
-                            data.RectangleAreaWO = this.ParseFloat(partParameter.InnerText);
-                            break;
-                        case "Weight":
-                            data.Weight = this.ParseFloat(partParameter.InnerText);
-                            break;
-                    }
-                }
-                partList.Add(data);
             }
 
-            return partList;
+
+            //Pobieramy xmla partu
+            XmlDocument partXml = new XmlDocument();
+            partXml.Load(Path.Combine(path, "Part_" + data.PartName + ".xml"));
+
+            //Najpierw nazwa materialu bo jest w dziwnym miejscu
+            XmlNode LaserMatNameNode = partXml.GetElementsByTagName("LaserMatName").Item(0);
+            data.LaserMatName = LaserMatNameNode.InnerText;
+
+            //Reszta danych
+            XmlNodeList partParameters = partXml.GetElementsByTagName("ExtraData").Item(0).ChildNodes;
+
+            for (int p = partParameters.Count; p > 0; p--)
+            {
+                XmlNode partParameter = partParameters.Item(p - 1);
+
+                switch (partParameter.Name)
+                {
+                    case "UnfoldXSize":
+                        data.UnfoldXSize = this.ParseFloat(partParameter.InnerText);
+                        break;
+                    case "UnfoldYSize":
+                        data.UnfoldYSize = this.ParseFloat(partParameter.InnerText);
+                        break;
+                    case "RectangleArea":
+                        data.RectangleArea = this.ParseFloat(partParameter.InnerText);
+                        break;
+                    case "RectangleAreaW":
+                        data.RectangleAreaW = this.ParseFloat(partParameter.InnerText);
+                        break;
+                    case "RectangleAreaWO":
+                        data.RectangleAreaWO = this.ParseFloat(partParameter.InnerText);
+                        break;
+                    case "Weight":
+                        data.Weight = this.ParseFloat(partParameter.InnerText);
+                        break;
+                }
+            }
+           
+
+            return data;
         }
 
         private float ParseFloat(string input)
@@ -152,11 +151,12 @@ namespace ABL.Costing.Plate
 
 		bool ConstructInfo()
         {
-            try
-            {
+            //try
+            //{
                 XmlDocument constructInfoXml = new XmlDocument();
                 constructInfoXml.Load(this.dir + "/ConstructInfo.xml");
                 XmlNodeList programs = constructInfoXml.GetElementsByTagName("Sheet");
+                string partPath = this.FindAssemblyFile().FullName;
 
                 for (int p = 0; p < programs.Count; p++)
                 {
@@ -188,16 +188,25 @@ namespace ABL.Costing.Plate
                         }
                     }
 
-                    XmlNodeList parts = program.SelectNodes("/Part");
-                    programData.SetParts(this.GetPartsData(parts));
+
+                    XmlNodeList programNodes = program.ChildNodes;
+                    for (int pp = 0; pp < programNodes.Count; pp++)
+                    {
+                        XmlNode programNode = programNodes.Item(pp);
+                        if (programNode.Name == "Part")
+                        {
+                            programData.AddPart(this.GetPartsData(programNode.ChildNodes, partPath));
+                        }
+                    }
+
                     this.programsData.Add(programData);
                 }
-            }
+            /**}
             catch (Exception ex)
             {
                 this.listener.AddToLog("Blad ConstructInfo: " + ex.Message);
                 return false;
-            }
+            }**/
 
             return true;
         }
@@ -213,11 +222,11 @@ namespace ABL.Costing.Plate
                 {
                     XmlNode mat = mats.Item(m);
                     XmlNodeList parameters = mat.ChildNodes;
+                    Mode3Data.MaterialData material = new Mode3Data.MaterialData();
 
                     for (int p = 0; p < parameters.Count; p++)
                     {
                         XmlNode parameter = parameters.Item(p);
-                        Mode3Data.MaterialData material = new Mode3Data.MaterialData();
 
                         switch (parameter.Name)
                         {
@@ -283,10 +292,11 @@ namespace ABL.Costing.Plate
                     int imageId = n + 1;
                     this.ImageUpload(this.listener.SheetImageDir + n + ".bmp");
 
+                    Mode3Data.ProgramData programData = new Mode3Data.ProgramData();
+
                     for (int a = 0; a < parameters.Count; a++)
                     {
                         XmlNode parameter = parameters.Item(a);
-                        Mode3Data.ProgramData programData = new Mode3Data.ProgramData();
                         switch (parameter.Name)
                         {
                             case "SheetName":
@@ -334,6 +344,34 @@ namespace ABL.Costing.Plate
             }
 
             return 0;
+        }
+
+        private DirectoryInfo FindAssemblyFile()
+        {
+            DirectoryInfo lastEdited = new DirectoryInfo(this.assembly_dir);
+            DateTime lastEditedDate = DateTime.MinValue;
+
+            DirectoryInfo assembly = new DirectoryInfo(this.assembly_dir);
+            foreach (DirectoryInfo d in assembly.GetDirectories())
+            {
+                foreach (FileInfo f in d.GetFiles())
+                {
+                    if (Path.GetFileName(f.DirectoryName) == "Demo")
+                    {
+                        continue;
+                    }
+
+                    DateTime fileDate = File.GetLastWriteTime(f.FullName);
+
+                    if (DateTime.Compare(fileDate, lastEditedDate) > 0)
+                    {
+                        lastEditedDate = fileDate;
+                        lastEdited = d;
+                    }
+                }
+            }
+
+            return lastEdited;
         }
     }
 }

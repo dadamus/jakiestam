@@ -77,17 +77,17 @@ namespace ABL.Costing.Plate
             {
                 XmlDocument scheduleSheetXML = new XmlDocument();
                 scheduleSheetXML.Load(this.dir + "/ScheduleSheet.xml");
-                XmlNodeList detailsNode = scheduleSheetXML.GetElementsByTagName("Sheet");
+                XmlNodeList detailsNode = scheduleSheetXML.GetElementsByTagName("Sheets").Item(0).ChildNodes;
                 
                 for (int n = 0; n < detailsNode.Count; n++)
                 {
                     XmlNode detail = detailsNode.Item(n);
                     XmlNodeList parameters = detail.ChildNodes;
 
+                    Mode3Data.DetailData detailData = new Mode3Data.DetailData();
                     for (int a = 0; a < parameters.Count; a++)
                     {
                         XmlNode parameter = parameters.Item(a);
-                        Mode3Data.DetailData detailData = new Mode3Data.DetailData();
                         switch (parameter.Name)
                         {
                             case "SheetName":
@@ -105,7 +105,9 @@ namespace ABL.Costing.Plate
                                 break;
                         }
 
-                        this.details.Add(detailData);
+                        if (detailData.sheet != null) {
+                            this.details.Add(detailData);
+                        }
                     }
                 }
             } catch (XmlException ex)
@@ -138,13 +140,18 @@ namespace ABL.Costing.Plate
             {
                 foreach (FileInfo f in d.GetFiles())
                 {
+                    if (Path.GetFileName(f.DirectoryName) == "Demo")
+                    {
+                        continue;
+                    }
+
                     DateTime fileDate = File.GetLastWriteTime(f.FullName);
 
                     if (DateTime.Compare(fileDate, lastEditedDate) > 0)
                     {
                         lastEditedDate = fileDate;
+                        lastEdited = d;
                     }
-                    lastEdited = d;
                 }
             }
 

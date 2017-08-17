@@ -8,9 +8,9 @@ namespace ABL.Costing.Plate.Mode3Data
 {
     class Response
     {
-        private List<ProgramData> programs;
-        private List<MaterialData> materials;
-        private List<ProgramCardData> programsData;
+        public List<ProgramData> programs;
+        public List<MaterialData> materials;
+        public List<ProgramCardData> programsData;
 
         public void SetPrograms(List<ProgramData> programs)
         {

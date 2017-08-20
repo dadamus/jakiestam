@@ -134,7 +134,7 @@ namespace ABL.Costing.Plate
                         break;
                 }
             }
-           
+
 
             return data;
         }
@@ -149,58 +149,58 @@ namespace ABL.Costing.Plate
             return output;
         }
 
-		bool ConstructInfo()
+        bool ConstructInfo()
         {
             //try
             //{
-                XmlDocument constructInfoXml = new XmlDocument();
-                constructInfoXml.Load(this.dir + "/ConstructInfo.xml");
-                XmlNodeList programs = constructInfoXml.GetElementsByTagName("Sheet");
-                string partPath = this.FindAssemblyFile().FullName;
+            XmlDocument constructInfoXml = new XmlDocument();
+            constructInfoXml.Load(this.dir + "/ConstructInfo.xml");
+            XmlNodeList programs = constructInfoXml.GetElementsByTagName("Sheet");
+            string partPath = this.FindAssemblyFile().FullName;
 
-                for (int p = 0; p < programs.Count; p++)
+            for (int p = 0; p < programs.Count; p++)
+            {
+                XmlNode program = programs.Item(p);
+                XmlNodeList parameters = program.ChildNodes;
+
+                Mode3Data.ProgramCardData programData = new Mode3Data.ProgramCardData();
+
+                for (int i = 0; i < parameters.Count; i++)
                 {
-                    XmlNode program = programs.Item(p);
-                    XmlNodeList parameters = program.ChildNodes;
+                    XmlNode parameter = parameters.Item(i);
 
-                    Mode3Data.ProgramCardData programData = new Mode3Data.ProgramCardData();
-
-                    for (int i = 0; i < parameters.Count; i++)
+                    switch (parameter.Name)
                     {
-                        XmlNode parameter = parameters.Item(i);
+                        case "SheetName":
+                            programData.SheetName = parameter.InnerText;
+                            break;
 
-                        switch (parameter.Name)
-                        {
-                            case "SheetName":
-                                programData.SheetName = parameter.InnerText;
-                                break;
+                        case "SheetCount":
+                            int SheetCount = 0;
+                            if (!Int32.TryParse(parameter.InnerText, out SheetCount))
+                            {
+                                this.listener.AddToLog("Blad parsowania ConstructInfo: SheetCount");
+                                return false;
+                            }
 
-                            case "SheetCount":
-                                int SheetCount = 0;
-                                if (!Int32.TryParse(parameter.InnerText, out SheetCount))
-                                {
-                                    this.listener.AddToLog("Blad parsowania ConstructInfo: SheetCount");
-                                    return false;
-                                }
-
-                                programData.SheetCount = SheetCount;
-                                break;
-                        }
+                            programData.SheetCount = SheetCount;
+                            break;
                     }
-
-
-                    XmlNodeList programNodes = program.ChildNodes;
-                    for (int pp = 0; pp < programNodes.Count; pp++)
-                    {
-                        XmlNode programNode = programNodes.Item(pp);
-                        if (programNode.Name == "Part")
-                        {
-                            programData.AddPart(this.GetPartsData(programNode.ChildNodes, partPath));
-                        }
-                    }
-
-                    this.programsData.Add(programData);
                 }
+
+
+                XmlNodeList programNodes = program.ChildNodes;
+                for (int pp = 0; pp < programNodes.Count; pp++)
+                {
+                    XmlNode programNode = programNodes.Item(pp);
+                    if (programNode.Name == "Part")
+                    {
+                        programData.AddPart(this.GetPartsData(programNode.ChildNodes, partPath));
+                    }
+                }
+
+                this.programsData.Add(programData);
+            }
             /**}
             catch (Exception ex)
             {
@@ -213,7 +213,8 @@ namespace ABL.Costing.Plate
 
         private bool UsedMatInfo()
         {
-            try {
+            try
+            {
                 XmlDocument usedMatInfoXml = new XmlDocument();
                 usedMatInfoXml.Load(this.dir + "/UsedMatInfo.xml");
                 XmlNodeList mats = usedMatInfoXml.GetElementsByTagName("Mat");
@@ -257,8 +258,9 @@ namespace ABL.Costing.Plate
                                 break;
                         }
 
-                        this.materials.Add(material);
                     }
+
+                    this.materials.Add(material);
                 }
             }
             catch (Exception ex)
@@ -270,10 +272,10 @@ namespace ABL.Costing.Plate
             return true;
         }
 
-		private void ImageUpload(string path)
-		{
-			this.listener.sftp.Upload(path);
-		}
+        private void ImageUpload(string path)
+        {
+            this.listener.sftp.Upload(path);
+        }
 
         private bool ScheduleSheet()
         {
@@ -318,8 +320,10 @@ namespace ABL.Costing.Plate
                                 break;
                         }
 
-                        this.programs.Add(programData);
                     }
+
+                    this.programs.Add(programData);
+
                 }
             }
             catch (XmlException ex)

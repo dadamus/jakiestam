@@ -10,6 +10,5 @@ namespace ABL.Costing.Plate.Mode3Data
     {
         public string SheetName { get; set; }
         public int UsedSheetNum { get; set; }
-        List<Mode3Data.ProgramCardPartData> Parts { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace ABL.Costing.Plate.Mode3Data
 {
     class ProgramCardData
     {
-        private List<ProgramCardPartData> parts = new List<ProgramCardPartData>();
+        public List<ProgramCardPartData> parts = new List<ProgramCardPartData>();
 
         public string SheetName { get; set; }
         public int SheetCount { get; set; }

@@ -151,62 +151,62 @@ namespace ABL.Costing.Plate
 
         bool ConstructInfo()
         {
-            //try
-            //{
-            XmlDocument constructInfoXml = new XmlDocument();
-            constructInfoXml.Load(this.dir + "/ConstructInfo.xml");
-            XmlNodeList programs = constructInfoXml.GetElementsByTagName("Sheet");
-            string partPath = this.FindAssemblyFile().FullName;
-
-            for (int p = 0; p < programs.Count; p++)
+            try
             {
-                XmlNode program = programs.Item(p);
-                XmlNodeList parameters = program.ChildNodes;
+                XmlDocument constructInfoXml = new XmlDocument();
+                constructInfoXml.Load(this.dir + "/ConstructInfo.xml");
+                XmlNodeList programs = constructInfoXml.GetElementsByTagName("Sheet");
+                string partPath = this.FindAssemblyFile().FullName;
 
-                Mode3Data.ProgramCardData programData = new Mode3Data.ProgramCardData();
-
-                for (int i = 0; i < parameters.Count; i++)
+                for (int p = 0; p < programs.Count; p++)
                 {
-                    XmlNode parameter = parameters.Item(i);
+                    XmlNode program = programs.Item(p);
+                    XmlNodeList parameters = program.ChildNodes;
 
-                    switch (parameter.Name)
+                    Mode3Data.ProgramCardData programData = new Mode3Data.ProgramCardData();
+
+                    for (int i = 0; i < parameters.Count; i++)
                     {
-                        case "SheetName":
-                            programData.SheetName = parameter.InnerText;
-                            break;
+                        XmlNode parameter = parameters.Item(i);
 
-                        case "SheetCount":
-                            int SheetCount = 0;
-                            if (!Int32.TryParse(parameter.InnerText, out SheetCount))
-                            {
-                                this.listener.AddToLog("Blad parsowania ConstructInfo: SheetCount");
-                                return false;
-                            }
+                        switch (parameter.Name)
+                        {
+                            case "SheetName":
+                                programData.SheetName = parameter.InnerText;
+                                break;
 
-                            programData.SheetCount = SheetCount;
-                            break;
+                            case "SheetCount":
+                                int SheetCount = 0;
+                                if (!Int32.TryParse(parameter.InnerText, out SheetCount))
+                                {
+                                    this.listener.AddToLog("Blad parsowania ConstructInfo: SheetCount");
+                                    return false;
+                                }
+
+                                programData.SheetCount = SheetCount;
+                                break;
+                        }
                     }
-                }
 
 
-                XmlNodeList programNodes = program.ChildNodes;
-                for (int pp = 0; pp < programNodes.Count; pp++)
-                {
-                    XmlNode programNode = programNodes.Item(pp);
-                    if (programNode.Name == "Part")
+                    XmlNodeList programNodes = program.ChildNodes;
+                    for (int pp = 0; pp < programNodes.Count; pp++)
                     {
-                        programData.AddPart(this.GetPartsData(programNode.ChildNodes, partPath));
+                        XmlNode programNode = programNodes.Item(pp);
+                        if (programNode.Name == "Part")
+                        {
+                            programData.AddPart(this.GetPartsData(programNode.ChildNodes, partPath));
+                        }
                     }
-                }
 
-                this.programsData.Add(programData);
+                    this.programsData.Add(programData);
+                }
             }
-            /**}
             catch (Exception ex)
             {
                 this.listener.AddToLog("Blad ConstructInfo: " + ex.Message);
                 return false;
-            }**/
+            }
 
             return true;
         }
@@ -292,7 +292,7 @@ namespace ABL.Costing.Plate
 
                     //Upload obrazku do ramki
                     int imageId = n + 1;
-                    this.ImageUpload(this.listener.SheetImageDir + n + ".bmp");
+                    this.ImageUpload(this.listener.SheetImageDir + imageId + ".bmp");
 
                     Mode3Data.ProgramData programData = new Mode3Data.ProgramData();
 

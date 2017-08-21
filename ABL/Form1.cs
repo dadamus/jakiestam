@@ -37,8 +37,8 @@ namespace ABL
                 "C:\\Program Files (x86)\\Amada\\AI-CAM\\AIC_Main\\Schedule_Reports"
             };
             string laserDir = "C:\\Program Files (x86)\\Amada\\AICAM_Tube\\3D-Laser\\";
-            string uploadDir = "/var/www/abl/data/temp/";
-            string imgDir = "/var/www/abl/data/detale/img/min/";
+            string uploadDir = "/var/www/html/ABL/temp/";
+            string imgDir = "/var/www/html/ABL/detale/img/min/";
             string DataReportDB = "C:\\Program Files (x86)\\Amada\\AI-CAM\\AIC_Main\\DataReport.mdb";
             string SheetImageDir = "C:\\Program Files (x86)\\Amada\\AI-CAM\\AIC_Main\\Schedule_Reports\\";
             Sftp sftp = new Sftp("192.168.100.161", "laser", "btl321", uploadDir, imgDir, laserDir);

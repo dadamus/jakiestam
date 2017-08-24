@@ -47,7 +47,7 @@ namespace ABL.Costing.Plate
             WebClient client = new WebClient();
             this.listener.AddToLog("Wysylam blachy multi");
             client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-            string webresponse = client.UploadString(Form1.phpScript + "?p_a=multipart_plate_costing_details", "data=" + response);
+            string webresponse = client.UploadString(Form1.phpScript + "?p_a=multipart_plate_costing", "data=" + response);
             byte[] bytes = Encoding.Default.GetBytes(webresponse);
             webresponse = Encoding.UTF8.GetString(bytes);
             this.listener.AddToLog("Odpowiedz od php: " + webresponse);
@@ -317,6 +317,10 @@ namespace ABL.Costing.Plate
                                     throw new Exception("Brak UsedSheetNum!");
                                 }
                                 programData.UsedSheetNum = UsedSheetNum;
+                                break;
+
+                            case "PreTime":
+                                programData.PreTime = parameter.InnerText;
                                 break;
                         }
 

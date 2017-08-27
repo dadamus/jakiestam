@@ -506,6 +506,7 @@ namespace ABL
                             //Blachy multipart
                             if (file.Name == "ScheduleSheet.xml")
                             {
+                                Thread.Sleep(2000);
                                 string plate_dir = listener.dir[1];
                                 ABL.Costing.Plate.Mode2 model2 = new ABL.Costing.Plate.Mode2(listener, plate_dir);
                                 model2.Process();

@@ -16,6 +16,8 @@ namespace ABL.Costing.Plate
         private List<Mode3Data.ProgramData> programs = new List<Mode3Data.ProgramData>();
         private List<Mode3Data.MaterialData> materials = new List<Mode3Data.MaterialData>();
         private List<Mode3Data.ProgramCardData> programsData = new List<Mode3Data.ProgramCardData>();
+        private Dictionary<string, int> partId = new Dictionary<string, int>();
+        private Dictionary<int, string> partImgUrl = new Dictionary<int, string>();
 
         public Mode3(Listener listener, string dir)
         {
@@ -26,6 +28,9 @@ namespace ABL.Costing.Plate
 
         public bool Process()
         {
+            if (!this.NestingManageReport()) {
+                return false;
+            }
             if (!this.ScheduleSheet())
             {
                 return false;
@@ -65,7 +70,7 @@ namespace ABL.Costing.Plate
             return JsonConvert.SerializeObject(response);
         }
 
-        private Mode3Data.ProgramCardPartData GetPartsData(XmlNodeList partsNode, string path)
+        private Mode3Data.ProgramCardPartData GetPartsData(XmlNodeList partsNode, string path, string ProjectName)
         {
             Mode3Data.ProgramCardPartData data = new Mode3Data.ProgramCardPartData();
             for (int a = 0; a < partsNode.Count; a++)
@@ -95,7 +100,6 @@ namespace ABL.Costing.Plate
                         break;
                 }
             }
-
 
             //Pobieramy xmla partu
             XmlDocument partXml = new XmlDocument();
@@ -135,8 +139,22 @@ namespace ABL.Costing.Plate
                 }
             }
 
+			//Miniaturka
+			int id = partId[data.PartName];
 
-            return data;
+            string oldImgPath = Path.Combine(this.dir, ProjectName, id + ".bmp");
+            string newImgPath = Path.Combine(this.dir, ProjectName, "pimg_" + data.PartNo + ".bmp");
+
+            if (File.Exists(oldImgPath)) {
+                File.Copy(oldImgPath, newImgPath);
+                this.listener.AddToLog("Wysylam obrazek, part: " + data.PartNo);
+                this.ImageUpload(newImgPath);
+                File.Delete(newImgPath);
+            } else {
+                this.listener.AddToLog("Brak obrazka: " + oldImgPath);
+            }
+
+			return data;
         }
 
         private float ParseFloat(string input)
@@ -149,7 +167,46 @@ namespace ABL.Costing.Plate
             return output;
         }
 
-        bool ConstructInfo()
+        //Plik potrzebny tylko do miniaturek
+		bool NestingManageReport()
+        {
+            try {
+                XmlDocument nestingManageReport = new XmlDocument();
+                nestingManageReport.Load(this.dir + "/NestingManageReport.xml");
+                XmlNodeList parts = nestingManageReport.GetElementsByTagName("Part");
+
+                for (int p = 0; p < parts.Count; p++) {
+                    XmlNode part = parts.Item(p);
+                    XmlNodeList parameters = part.ChildNodes;
+
+                    int seq = 0;
+                    string partName = "";
+
+                    for (int a = 0; a < parameters.Count; a++) {
+                        XmlNode parameter = parameters.Item(a);
+
+                        switch (parameter.Name) {
+                            case "Seq":
+                                Int32.TryParse(parameter.InnerText, out seq);
+                                break;
+
+                            case "PartCode":
+                                partName = parameter.InnerText;
+                                break;
+                        }
+                    }
+
+                    this.partId.Add(partName, seq);
+                }
+            } catch (Exception ex) {
+                this.listener.AddToLog("Błąd NestingManageReport: " + ex.Message);
+                return false;
+            }
+            return true;
+        }
+
+
+		bool ConstructInfo()
         {
             try
             {
@@ -188,14 +245,13 @@ namespace ABL.Costing.Plate
                         }
                     }
 
-
-                    XmlNodeList programNodes = program.ChildNodes;
+					XmlNodeList programNodes = program.ChildNodes;
                     for (int pp = 0; pp < programNodes.Count; pp++)
                     {
                         XmlNode programNode = programNodes.Item(pp);
                         if (programNode.Name == "Part")
                         {
-                            programData.AddPart(this.GetPartsData(programNode.ChildNodes, partPath));
+                            programData.AddPart(this.GetPartsData(programNode.ChildNodes, partPath, programData.SheetName));
                         }
                     }
 

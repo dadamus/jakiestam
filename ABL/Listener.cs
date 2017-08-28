@@ -506,12 +506,12 @@ namespace ABL
                             //Blachy multipart
                             if (file.Name == "ScheduleSheet.xml")
                             {
-                                Thread.Sleep(2000);
                                 string plate_dir = listener.dir[1];
                                 ABL.Costing.Plate.Mode2 model2 = new ABL.Costing.Plate.Mode2(listener, plate_dir);
                                 model2.Process();
 
-                                ABL.Costing.Plate.Mode3 model3 = new Costing.Plate.Mode3(listener, plate_dir);
+								Thread.Sleep(2000);
+								ABL.Costing.Plate.Mode3 model3 = new Costing.Plate.Mode3(listener, plate_dir);
                                 model3.Process();
                                 plateSave = true;
                             }

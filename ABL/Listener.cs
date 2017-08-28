@@ -510,7 +510,7 @@ namespace ABL
                                 ABL.Costing.Plate.Mode2 model2 = new ABL.Costing.Plate.Mode2(listener, plate_dir);
                                 model2.Process();
 
-								Thread.Sleep(2000);
+								Thread.Sleep(1000);
 								ABL.Costing.Plate.Mode3 model3 = new Costing.Plate.Mode3(listener, plate_dir);
                                 model3.Process();
                                 plateSave = true;

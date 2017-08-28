@@ -142,8 +142,8 @@ namespace ABL.Costing.Plate
 			//Miniaturka
 			int id = partId[data.PartName];
 
-            string oldImgPath = Path.Combine(this.dir, ProjectName, id + ".bmp");
-            string newImgPath = Path.Combine(this.dir, ProjectName, "pimg_" + data.PartNo + ".bmp");
+            string oldImgPath = Path.Combine(this.dir, ProjectName, id + ".jpg");
+            string newImgPath = Path.Combine(this.dir, ProjectName, "pimg_" + data.PartNo + ".jpg");
 
             if (File.Exists(oldImgPath)) {
                 File.Copy(oldImgPath, newImgPath);

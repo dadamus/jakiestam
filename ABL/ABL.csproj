@@ -135,6 +135,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Costing\Plate\Production.cs" />
+    <Compile Include="Costing\Plate\ProductionData\DetailData.cs" />
+    <Compile Include="Costing\Plate\ProductionData\ProgramData.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -155,6 +158,9 @@
     <Content Include="ABL-manager-favicon.ico" />
     <None Include="Resources\ABL-manager-favicon.ico" />
     <None Include="Resources\sauron.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Costing\Plate\ProductionData\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Net;
 using Newtonsoft.Json;
+using System.Threading;
 
 namespace ABL.Costing.Plate
 {
@@ -25,6 +26,7 @@ namespace ABL.Costing.Plate
 
         public bool Process()
         {
+            Thread.Sleep(1000);
             if (!this.ScheduleSheet())
             {
                 return false;

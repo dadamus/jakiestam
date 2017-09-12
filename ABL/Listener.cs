@@ -510,9 +510,12 @@ namespace ABL
                                 ABL.Costing.Plate.Mode2 model2 = new ABL.Costing.Plate.Mode2(listener, plate_dir);
                                 model2.Process();
 
-								Thread.Sleep(1000);
 								ABL.Costing.Plate.Mode3 model3 = new Costing.Plate.Mode3(listener, plate_dir);
                                 model3.Process();
+
+                                //Ostatni etap produckcja
+                                ABL.Costing.Plate.Production plateProduction = new Costing.Plate.Production(listener, plate_dir);
+                                plateProduction.Process();
                                 plateSave = true;
                             }
 

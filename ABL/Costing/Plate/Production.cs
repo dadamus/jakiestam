@@ -67,6 +67,17 @@ namespace ABL.Costing.Plate
                                 programData.SheetName = name;
                                 break;
 
+                            case "SheetCount":
+                                int sheetCount = 0;
+
+                                if (!Int32.TryParse(param.InnerText, out sheetCount)) {
+                                    this.listener.AddToLog("Blad parsowania: SheetCount");
+                                    return false;
+                                }
+
+                                programData.SheetCount = sheetCount;
+                                break;
+
                             case "Part":
                                 ProductionData.DetailData detailData = new ProductionData.DetailData();
 

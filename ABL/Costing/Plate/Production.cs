@@ -29,7 +29,7 @@ namespace ABL.Costing.Plate
             }
 
             this.listener.AddToLog("Wysylam detale na produckji");
-            string data = HttpUtility.UrlEncode(JsonConvert.SerializeObject(this.programs));
+            string data = JsonConvert.SerializeObject(this.programs);
 
             WebClient client = new WebClient();
 			client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
@@ -65,7 +65,7 @@ namespace ABL.Costing.Plate
                                     return false;
                                 }
 
-                                programData.SheetName = name;
+                                programData.SheetName = HttpUtility.UrlEncode(name);
                                 break;
 
                             case "SheetCount":

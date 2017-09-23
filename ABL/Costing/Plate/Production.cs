@@ -107,6 +107,8 @@ namespace ABL.Costing.Plate
                                 break;
                         }
                     }
+
+                    this.programs.Add(programData);
                 }
 
                 return true;

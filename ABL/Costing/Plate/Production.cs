@@ -5,6 +5,7 @@ using System.Text;
 using System.Net;
 using Newtonsoft.Json;
 using System.Threading;
+using System.Web;
 
 namespace ABL.Costing.Plate
 {
@@ -28,7 +29,7 @@ namespace ABL.Costing.Plate
             }
 
             this.listener.AddToLog("Wysylam detale na produckji");
-            string data = JsonConvert.SerializeObject(this.programs);
+            string data = HttpUtility.UrlEncode(JsonConvert.SerializeObject(this.programs));
 
             WebClient client = new WebClient();
 			client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";

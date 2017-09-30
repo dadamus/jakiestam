@@ -6,6 +6,7 @@ using System.Net;
 using Newtonsoft.Json;
 using System.Threading;
 using System.Web;
+using System.IO;
 
 namespace ABL.Costing.Plate
 {
@@ -13,12 +14,14 @@ namespace ABL.Costing.Plate
     {
         private Listener listener;
         private string plate_dir;
+        private string assembly_dir;
         private List<ProductionData.ProgramData> programs = new List<ProductionData.ProgramData>();
 
         public Production(Listener listener, string plate_dir)
         {
             this.listener = listener;
             this.plate_dir = plate_dir;
+			this.assembly_dir = Path.Combine(Directory.GetParent(plate_dir).ToString(), "Assembly\\");
         }
 
         public bool Process()
@@ -49,12 +52,20 @@ namespace ABL.Costing.Plate
 				XmlNodeList sheets = constructInfo.GetElementsByTagName("Sheet");
 
                 for (int s = sheets.Count - 1; s >= 0; s--) {
+                    
+                    //Upload obrazku do ramki
+                    int imageId = s;
+					this.listener.sftp.Upload(this.listener.SheetImageDir + imageId + ".bmp");
+
                     XmlNode sheet = sheets.Item(s);
                     XmlNodeList sheetParams = sheet.ChildNodes;
 
                     ProductionData.ProgramData programData = new ProductionData.ProgramData();
+                    programData.SheetId = s;
 
-                    for (int p = sheetParams.Count - 1; p >= 0; p--) {
+					string partPath = Mode3.FindAssemblyFile(this.assembly_dir).FullName;
+
+					for (int p = sheetParams.Count - 1; p >= 0; p--) {
                         XmlNode param = sheetParams.Item(p);
 
                         switch (param.Name) {
@@ -83,7 +94,6 @@ namespace ABL.Costing.Plate
                                 ProductionData.DetailData detailData = new ProductionData.DetailData();
 
                                 XmlNodeList partData = param.ChildNodes;
-
                                 for (int pd = partData.Count - 1; pd >= 0; pd--) {
                                     XmlNode partParam = partData.Item(pd);
 
@@ -102,6 +112,17 @@ namespace ABL.Costing.Plate
                                             detailData.Quantity = partCount;
                                             break;
                                     }
+                                }
+
+                                //Zaciaganie nazwy matertialu jak jest pusta
+                                if (programData.LaserMatName == null)
+                                {
+                                    //Teraz odpalamy dziwny folder partu
+                                    XmlDocument partXml = new XmlDocument();
+                                    partXml.Load(Path.Combine(partPath, "Part_" + detailData.PartName + ".xml"));
+
+                                    XmlNode LaserMatNameNode = partXml.GetElementsByTagName("LaserMatName").Item(0);
+                                    programData.LaserMatName = LaserMatNameNode.InnerText;
                                 }
 
                                 programData.AddDetail(detailData);

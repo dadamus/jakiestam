@@ -43,10 +43,16 @@ namespace ABL
             this.db = new DBController(this);
 
             this.serwer_client = new List<TcpClient>();
-            this.serwer = new TcpListener(IPAddress.Any, Form1.serwerPort);
-            this.serwer.Start();
-            serverStarted = true;
 
+            try
+            {
+                this.serwer = new TcpListener(IPAddress.Any, Form1.serwerPort);
+                this.serwer.Start();
+                serverStarted = true;
+            } catch (Exception ex) {
+                this.AddToLog("Port zajety! " + ex.Message);
+                Application.Exit();
+            }
             this.dir = dir;
             this.uploadDir = uploadDir;
             this.acceptFiles = aF;

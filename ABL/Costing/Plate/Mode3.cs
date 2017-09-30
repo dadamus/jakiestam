@@ -215,7 +215,7 @@ namespace ABL.Costing.Plate
                 XmlDocument constructInfoXml = new XmlDocument();
                 constructInfoXml.Load(this.dir + "/ConstructInfo.xml");
                 XmlNodeList programs = constructInfoXml.GetElementsByTagName("Sheet");
-                string partPath = this.FindAssemblyFile().FullName;
+                string partPath = Mode3.FindAssemblyFile(this.assembly_dir).FullName;
 
                 for (int p = 0; p < programs.Count; p++)
                 {
@@ -412,12 +412,12 @@ namespace ABL.Costing.Plate
             return 0;
         }
 
-        private DirectoryInfo FindAssemblyFile()
+        public static DirectoryInfo FindAssemblyFile(string assembly_dir)
         {
-            DirectoryInfo lastEdited = new DirectoryInfo(this.assembly_dir);
+            DirectoryInfo lastEdited = new DirectoryInfo(assembly_dir);
             DateTime lastEditedDate = DateTime.MinValue;
 
-            DirectoryInfo assembly = new DirectoryInfo(this.assembly_dir);
+            DirectoryInfo assembly = new DirectoryInfo(assembly_dir);
             foreach (DirectoryInfo d in assembly.GetDirectories())
             {
                 foreach (FileInfo f in d.GetFiles())

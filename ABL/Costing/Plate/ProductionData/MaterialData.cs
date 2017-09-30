@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ABL.Costing.Plate.ProductionData
 {
-    class MaterialData
+    public class MaterialData
     {
         public string SheetCode { get; set; }
         public int UsedSheetNum { get; set; } 

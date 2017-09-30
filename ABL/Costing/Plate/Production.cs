@@ -60,7 +60,7 @@ namespace ABL.Costing.Plate
                 for (int s = sheets.Count - 1; s >= 0; s--) {
                     
                     //Upload obrazku do ramki
-                    int imageId = s;
+                    int imageId = s + 1;
 					this.listener.sftp.Upload(this.listener.SheetImageDir + imageId + ".bmp");
 
                     XmlNode sheet = sheets.Item(s);

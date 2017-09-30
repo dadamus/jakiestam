@@ -32,6 +32,10 @@ namespace ABL.Costing.Plate
                 return false;
             }
 
+			if (!this.UsedMatInfo()) {
+				return false;
+			}
+
             this.listener.AddToLog("Wysylam detale na produckji");
 
             ProductionData.PhpData dataContainer = new ProductionData.PhpData();

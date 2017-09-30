@@ -9,6 +9,6 @@ namespace ABL.Costing.Plate.ProductionData
     public class MaterialData
     {
         public string SheetCode { get; set; }
-        public int UsedSheetNum { get; set; } 
+        public int UsedSheetNum { get; set; }
     }
 }

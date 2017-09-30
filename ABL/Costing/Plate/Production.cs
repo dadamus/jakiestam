@@ -61,6 +61,8 @@ namespace ABL.Costing.Plate
                 constructInfo.Load(this.plate_dir + "/ConstructInfo.xml");
 				XmlNodeList sheets = constructInfo.GetElementsByTagName("Sheet");
 
+                string partPath = Mode3.FindAssemblyFile(this.assembly_dir).FullName;
+
                 for (int s = sheets.Count - 1; s >= 0; s--) {
                     
                     //Upload obrazku do ramki
@@ -73,7 +75,7 @@ namespace ABL.Costing.Plate
                     ProductionData.ProgramData programData = new ProductionData.ProgramData();
                     programData.SheetId = s;
 
-					string partPath = Mode3.FindAssemblyFile(this.assembly_dir).FullName;
+					string assemblyPartPath = Mode3.FindAssemblyFile(this.assembly_dir).FullName;
 
 					for (int p = sheetParams.Count - 1; p >= 0; p--) {
                         XmlNode param = sheetParams.Item(p);
@@ -122,6 +124,16 @@ namespace ABL.Costing.Plate
                                             detailData.Quantity = partCount;
                                             break;
                                     }
+                                }
+
+                                if (programData.LaserMatName.Length < 1) {
+									//Pobieramy xmla partu
+									XmlDocument partXml = new XmlDocument();
+                                    partXml.Load(Path.Combine(assemblyPartPath, "Part_" + detailData.PartName + ".xml"));
+
+									//Najpierw nazwa materialu bo jest w dziwnym miejscu
+									XmlNode LaserMatNameNode = partXml.GetElementsByTagName("LaserMatName").Item(0);
+                                    programData.LaserMatName = LaserMatNameNode.InnerText;
                                 }
 
                                 programData.AddDetail(detailData);

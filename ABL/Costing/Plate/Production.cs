@@ -16,6 +16,7 @@ namespace ABL.Costing.Plate
         private string plate_dir;
         private string assembly_dir;
         private List<ProductionData.ProgramData> programs = new List<ProductionData.ProgramData>();
+        private List<ProductionData.MaterialData> materials = new List<ProductionData.MaterialData>();
 
         public Production(Listener listener, string plate_dir)
         {
@@ -32,7 +33,12 @@ namespace ABL.Costing.Plate
             }
 
             this.listener.AddToLog("Wysylam detale na produckji");
-            string data = JsonConvert.SerializeObject(this.programs);
+
+            ProductionData.PhpData dataContainer = new ProductionData.PhpData();
+            dataContainer.materials = this.materials;
+            dataContainer.programs = this.programs;
+
+            string data = JsonConvert.SerializeObject(dataContainer);
 
             WebClient client = new WebClient();
 			client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
@@ -114,17 +120,6 @@ namespace ABL.Costing.Plate
                                     }
                                 }
 
-                                //Zaciaganie nazwy matertialu jak jest pusta
-                                if (programData.LaserMatName == null)
-                                {
-                                    //Teraz odpalamy dziwny folder partu
-                                    XmlDocument partXml = new XmlDocument();
-                                    partXml.Load(Path.Combine(partPath, "Part_" + detailData.PartName + ".xml"));
-
-                                    XmlNode LaserMatNameNode = partXml.GetElementsByTagName("LaserMatName").Item(0);
-                                    programData.LaserMatName = LaserMatNameNode.InnerText;
-                                }
-
                                 programData.AddDetail(detailData);
                                 break;
                         }
@@ -139,6 +134,55 @@ namespace ABL.Costing.Plate
                 return false;
             }
         }
+
+		private bool UsedMatInfo()
+		{
+			try
+			{
+				XmlDocument usedMatInfoXml = new XmlDocument();
+                usedMatInfoXml.Load(this.plate_dir + "/UsedMatInfo.xml");
+				XmlNodeList mats = usedMatInfoXml.GetElementsByTagName("Mat");
+
+				for (int m = 0; m < mats.Count; m++)
+				{
+					XmlNode mat = mats.Item(m);
+					XmlNodeList parameters = mat.ChildNodes;
+                    ProductionData.MaterialData material = new ProductionData.MaterialData();
+
+					for (int p = 0; p < parameters.Count; p++)
+					{
+						XmlNode parameter = parameters.Item(p);
+
+						switch (parameter.Name)
+						{
+							case "SheetCode":
+								material.SheetCode = parameter.InnerText;
+								break;
+
+							case "UsedSheetNum":
+								int UsedSheetNum;
+								if (!Int32.TryParse(parameter.InnerText, out UsedSheetNum))
+								{
+									this.listener.AddToLog("Blad parsowania UsedSheetNum");
+									return false;
+								}
+								material.UsedSheetNum = UsedSheetNum;
+								break;
+						}
+
+					}
+
+					this.materials.Add(material);
+				}
+			}
+			catch (Exception ex)
+			{
+                this.listener.AddToLog("Blad Production: UsedMatInfo: " + ex.Message);
+				return false;
+			}
+
+			return true;
+		}
 
         private bool ValidProgramName(string name)
         {

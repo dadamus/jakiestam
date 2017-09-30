@@ -56,7 +56,7 @@ namespace ABL.Costing.Plate
 
         private bool ConstructInfo() 
         {
-            try {
+            //try {
 				XmlDocument constructInfo = new XmlDocument();
                 constructInfo.Load(this.plate_dir + "/ConstructInfo.xml");
 				XmlNodeList sheets = constructInfo.GetElementsByTagName("Sheet");
@@ -126,7 +126,7 @@ namespace ABL.Costing.Plate
                                     }
                                 }
 
-                                if (programData.LaserMatName.Length < 1) {
+                                if (String.IsNullOrEmpty(programData.LaserMatName)) {
 									//Pobieramy xmla partu
 									XmlDocument partXml = new XmlDocument();
                                     partXml.Load(Path.Combine(assemblyPartPath, "Part_" + detailData.PartName + ".xml"));
@@ -145,10 +145,10 @@ namespace ABL.Costing.Plate
                 }
 
                 return true;
-            } catch (Exception ex) {
+            /*} catch (Exception ex) {
                 this.listener.AddToLog("Wystapil blad construct info: " + ex.Message);
                 return false;
-            }
+            }*/
         }
 
 		private bool UsedMatInfo()

@@ -5,5 +5,6 @@ namespace ABL.Costing.Plate.ProductionData
     {
         public string PartName { get; set; }
         public int Quantity { get; set; }
+        public float RectangleAreaW { get; set; }
     }
 }

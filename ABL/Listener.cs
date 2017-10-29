@@ -292,6 +292,19 @@ namespace ABL
             }
         }
 
+        private void doMdbToMysqlDelete(string dataToDelete, Listener listener)
+        {
+            try {
+                WebClient web = new WebClient();
+                web.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
+                string webResponse = web.UploadString(Form1.phpScript + "?p_a=plate_warehouse_sync_delete", "toSync=[" + dataToDelete + "]");
+            } 
+            catch(Exception) 
+            {
+                
+            }
+        }
+
         private void doMdbToMysqlSync(string dataToUpload, Listener listener)
         {
             string webResponse = "";
@@ -413,11 +426,13 @@ namespace ABL
 
                     //Sync main plate
                     List<T_MaterialSheet> platesToSync = listener.db.GetNotSynchronized(listener);
+                    List<string> platesToDelete = listener.db.GetToDelete(listener);
+
                     int platesCount = platesToSync.Count;
-                    if (platesCount > 0)
+                    if (platesCount + platesToDelete.Count > 0)
                     {
                         listener.AddToLog("Synchronizacja mdb -> mysql: Rozpoczeta!");
-                        listener.AddToLog("Znaleziono " + platesCount + " zmienionych blach");
+                        listener.AddToLog("Znaleziono " + (platesCount + platesToDelete.Count) + " zmienionych blach");
 
                         listener.SyncStatusChange(0, 0, platesCount);
 
@@ -449,6 +464,26 @@ namespace ABL
                         }
                     }
                     platesToSync.Clear();
+
+                    //Synchronizacja usunietych
+                    if (platesToDelete.Count > 0) 
+                    {
+                        listener.SyncStatusChange(0, 0, platesToDelete.Count, "Synchronizacja usunietych");
+                        int platesCount = platesToDelete.Count;
+                        string plates = JsonConvert.SerializeObject(platesToDelete);
+                        listener.doMdbToMysqlDelete(plates, listener);
+
+                        string toDelete = null;
+                        for (int i = 0; i < platesCount; i++) {
+                            if (toDelete !== null) {
+                                toDelete += ", ";
+                            }
+                            toDelete += '"' + platesToDelete[i] + '"';
+                        }
+                        listener.db.DeletePlates(toDelete);
+                    }
+
+                    platesToDelete.Clear();
 
                     //Sync memo
                     listener.db.openAicamBases();

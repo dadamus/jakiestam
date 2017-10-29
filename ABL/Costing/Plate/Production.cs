@@ -22,19 +22,21 @@ namespace ABL.Costing.Plate
         {
             this.listener = listener;
             this.plate_dir = plate_dir;
-			this.assembly_dir = Path.Combine(Directory.GetParent(plate_dir).ToString(), "Assembly\\");
+            this.assembly_dir = Path.Combine(Directory.GetParent(plate_dir).ToString(), "Assembly\\");
         }
 
         public bool Process()
         {
-			Thread.Sleep(1000);
-			if (!this.ConstructInfo()) {
+            Thread.Sleep(1000);
+            if (!this.ConstructInfo())
+            {
                 return false;
             }
 
-			if (!this.UsedMatInfo()) {
-				return false;
-			}
+            if (!this.UsedMatInfo())
+            {
+                return false;
+            }
 
             this.listener.AddToLog("Wysylam detale na produckji");
 
@@ -45,164 +47,194 @@ namespace ABL.Costing.Plate
             string data = JsonConvert.SerializeObject(dataContainer);
 
             WebClient client = new WebClient();
-			client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-			string response = client.UploadString(Form1.phpScript + "?p_a=plate_production_sync", "data=" + data);
-			byte[] bytes = Encoding.Default.GetBytes(response);
-			response = Encoding.UTF8.GetString(bytes);
+            client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
+            string response = client.UploadString(Form1.phpScript + "?p_a=plate_production_sync", "data=" + data);
+            byte[] bytes = Encoding.Default.GetBytes(response);
+            response = Encoding.UTF8.GetString(bytes);
 
             this.listener.AddToLog("Odpowiedz php: " + response);
             return true;
         }
 
-        private bool ConstructInfo() 
+        private bool ConstructInfo()
         {
             //try {
-				XmlDocument constructInfo = new XmlDocument();
-                constructInfo.Load(this.plate_dir + "/ConstructInfo.xml");
-				XmlNodeList sheets = constructInfo.GetElementsByTagName("Sheet");
+            XmlDocument constructInfo = new XmlDocument();
+            constructInfo.Load(this.plate_dir + "/ConstructInfo.xml");
+            XmlNodeList sheets = constructInfo.GetElementsByTagName("Sheet");
 
-                string partPath = Mode3.FindAssemblyFile(this.assembly_dir).FullName;
+            string partPath = Mode3.FindAssemblyFile(this.assembly_dir).FullName;
 
-                for (int s = sheets.Count - 1; s >= 0; s--) {
-                    
-                    //Upload obrazku do ramki
-                    int imageId = s + 1;
-					this.listener.sftp.Upload(this.listener.SheetImageDir + imageId + ".bmp");
+            for (int s = sheets.Count - 1; s >= 0; s--)
+            {
 
-                    XmlNode sheet = sheets.Item(s);
-                    XmlNodeList sheetParams = sheet.ChildNodes;
+                //Upload obrazku do ramki
+                int imageId = s + 1;
+                this.listener.sftp.Upload(this.listener.SheetImageDir + imageId + ".bmp");
 
-                    ProductionData.ProgramData programData = new ProductionData.ProgramData();
-                    programData.SheetId = s;
+                XmlNode sheet = sheets.Item(s);
+                XmlNodeList sheetParams = sheet.ChildNodes;
 
-					string assemblyPartPath = Mode3.FindAssemblyFile(this.assembly_dir).FullName;
+                ProductionData.ProgramData programData = new ProductionData.ProgramData();
+                programData.SheetId = s;
 
-					for (int p = sheetParams.Count - 1; p >= 0; p--) {
-                        XmlNode param = sheetParams.Item(p);
+                string assemblyPartPath = Mode3.FindAssemblyFile(this.assembly_dir).FullName;
 
-                        switch (param.Name) {
-                            case "SheetName":
-                                string name = param.InnerText;
+                for (int p = sheetParams.Count - 1; p >= 0; p--)
+                {
+                    XmlNode param = sheetParams.Item(p);
 
-                                if (this.ValidProgramName(name) == false) {
-                                    return false;
+                    switch (param.Name)
+                    {
+                        case "SheetName":
+                            string name = param.InnerText;
+
+                            if (this.ValidProgramName(name) == false)
+                            {
+                                return false;
+                            }
+
+                            programData.SheetName = HttpUtility.UrlEncode(name);
+                            break;
+
+                        case "SheetCount":
+                            int sheetCount = 0;
+
+                            if (!Int32.TryParse(param.InnerText, out sheetCount))
+                            {
+                                this.listener.AddToLog("Blad parsowania: SheetCount");
+                                return false;
+                            }
+
+                            programData.SheetCount = sheetCount;
+                            break;
+
+                        case "Part":
+                            ProductionData.DetailData detailData = new ProductionData.DetailData();
+
+                            XmlNodeList partData = param.ChildNodes;
+                            for (int pd = partData.Count - 1; pd >= 0; pd--)
+                            {
+                                XmlNode partParam = partData.Item(pd);
+
+                                switch (partParam.Name)
+                                {
+                                    case "PartName":
+                                        detailData.PartName = partParam.InnerText;
+                                        break;
+
+                                    case "PartCount":
+                                        int partCount = 0;
+                                        if (!Int32.TryParse(partParam.InnerText, out partCount))
+                                        {
+                                            this.listener.AddToLog("Blad parsowania: PartCount");
+                                            return false;
+                                        }
+
+                                        detailData.Quantity = partCount;
+                                        break;
                                 }
+                            }
 
-                                programData.SheetName = HttpUtility.UrlEncode(name);
-                                break;
+							//Pobieramy xmla partu
+							XmlDocument partXml = new XmlDocument();
+                            partXml.Load(Path.Combine(assemblyPartPath, "Part_" + detailData.PartName + ".xml"));
 
-                            case "SheetCount":
-                                int sheetCount = 0;
 
-                                if (!Int32.TryParse(param.InnerText, out sheetCount)) {
-                                    this.listener.AddToLog("Blad parsowania: SheetCount");
-                                    return false;
+                            if (String.IsNullOrEmpty(programData.LaserMatName))
+                            {
+                                //Najpierw nazwa materialu bo jest w dziwnym miejscu
+                                XmlNode LaserMatNameNode = partXml.GetElementsByTagName("LaserMatName").Item(0);
+                                programData.LaserMatName = LaserMatNameNode.InnerText;
+                            }
+                            //Reszta danych
+                            XmlNodeList partParameters = partXml.GetElementsByTagName("ExtraData").Item(0).ChildNodes;
+
+                            for (int pIndex = partParameters.Count; pIndex > 0; pIndex--)
+                            {
+                                XmlNode partParameter = partParameters.Item(pIndex - 1);
+
+                                switch (partParameter.Name)
+                                {
+                                    case "RectangleAreaW":
+                                        float RectangleAreaW = 0;
+
+										string rawData = partParameter.InnerText;
+										float.TryParse(rawData, out RectangleAreaW);
+
+                                        detailData.RectangleAreaW = RectangleAreaW;
+                                        break;
                                 }
+                            }
 
-                                programData.SheetCount = sheetCount;
-                                break;
-
-                            case "Part":
-                                ProductionData.DetailData detailData = new ProductionData.DetailData();
-
-                                XmlNodeList partData = param.ChildNodes;
-                                for (int pd = partData.Count - 1; pd >= 0; pd--) {
-                                    XmlNode partParam = partData.Item(pd);
-
-                                    switch(partParam.Name) {
-                                        case "PartName":
-                                            detailData.PartName = partParam.InnerText;
-                                            break;
-
-                                        case "PartCount":
-                                            int partCount = 0;
-                                            if (!Int32.TryParse(partParam.InnerText, out partCount)) {
-                                                this.listener.AddToLog("Blad parsowania: PartCount");
-                                                return false;
-                                            }
-
-                                            detailData.Quantity = partCount;
-                                            break;
-                                    }
-                                }
-
-                                if (String.IsNullOrEmpty(programData.LaserMatName)) {
-									//Pobieramy xmla partu
-									XmlDocument partXml = new XmlDocument();
-                                    partXml.Load(Path.Combine(assemblyPartPath, "Part_" + detailData.PartName + ".xml"));
-
-									//Najpierw nazwa materialu bo jest w dziwnym miejscu
-									XmlNode LaserMatNameNode = partXml.GetElementsByTagName("LaserMatName").Item(0);
-                                    programData.LaserMatName = LaserMatNameNode.InnerText;
-                                }
-
-                                programData.AddDetail(detailData);
-                                break;
-                        }
+                            programData.AddDetail(detailData);
+                            break;
                     }
-
-                    this.programs.Add(programData);
                 }
 
-                return true;
+                this.programs.Add(programData);
+            }
+
+            return true;
             /*} catch (Exception ex) {
                 this.listener.AddToLog("Wystapil blad construct info: " + ex.Message);
                 return false;
             }*/
         }
 
-		private bool UsedMatInfo()
-		{
-			try
-			{
-				XmlDocument usedMatInfoXml = new XmlDocument();
+        private bool UsedMatInfo()
+        {
+            try
+            {
+                XmlDocument usedMatInfoXml = new XmlDocument();
                 usedMatInfoXml.Load(this.plate_dir + "/UsedMatInfo.xml");
-				XmlNodeList mats = usedMatInfoXml.GetElementsByTagName("Mat");
+                XmlNodeList mats = usedMatInfoXml.GetElementsByTagName("Mat");
 
-				for (int m = 0; m < mats.Count; m++)
-				{
-					XmlNode mat = mats.Item(m);
-					XmlNodeList parameters = mat.ChildNodes;
+                for (int m = 0; m < mats.Count; m++)
+                {
+                    XmlNode mat = mats.Item(m);
+                    XmlNodeList parameters = mat.ChildNodes;
                     ProductionData.MaterialData material = new ProductionData.MaterialData();
 
-					for (int p = 0; p < parameters.Count; p++)
-					{
-						XmlNode parameter = parameters.Item(p);
+                    for (int p = 0; p < parameters.Count; p++)
+                    {
+                        XmlNode parameter = parameters.Item(p);
 
-						switch (parameter.Name)
-						{
-							case "SheetCode":
-								material.SheetCode = parameter.InnerText;
-								break;
+                        switch (parameter.Name)
+                        {
+                            case "SheetCode":
+                                material.SheetCode = parameter.InnerText;
+                                break;
 
-							case "UsedSheetNum":
-								int UsedSheetNum;
-								if (!Int32.TryParse(parameter.InnerText, out UsedSheetNum))
-								{
-									this.listener.AddToLog("Blad parsowania UsedSheetNum");
-									return false;
-								}
-								material.UsedSheetNum = UsedSheetNum;
-								break;
-						}
+                            case "UsedSheetNum":
+                                int UsedSheetNum;
+                                if (!Int32.TryParse(parameter.InnerText, out UsedSheetNum))
+                                {
+                                    this.listener.AddToLog("Blad parsowania UsedSheetNum");
+                                    return false;
+                                }
+                                material.UsedSheetNum = UsedSheetNum;
+                                break;
+                        }
 
-					}
+                    }
 
-					this.materials.Add(material);
-				}
-			}
-			catch (Exception ex)
-			{
+                    this.materials.Add(material);
+                }
+            }
+            catch (Exception ex)
+            {
                 this.listener.AddToLog("Blad Production: UsedMatInfo: " + ex.Message);
-				return false;
-			}
+                return false;
+            }
 
-			return true;
-		}
+            return true;
+        }
 
         private bool ValidProgramName(string name)
         {
-            if (name[0].ToString() == "A") {
+            if (name[0].ToString() == "A")
+            {
                 return true;
             }
 

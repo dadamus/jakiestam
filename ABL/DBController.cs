@@ -285,6 +285,34 @@ namespace ABL
             return materials;
         }
 
+        public List<string> GetToDelete(Listener listner)
+        {
+            T_MaterialSheet plate_sql = new T_MaterialSheet();
+            string sql = "SELECT s.* FROM `plateWarehouseSynced` s LEFT JOIN `T_MaterialSheet` tms ON ";
+            sql += plate_sql.GenerateCheckSyncedSql("s", "tms");
+            sql += " WHERE tms.SheetCode IS NULL";
+
+            this.openAicamBases();
+            OleDbCommand command = new OleDbCommand(sql, this.AicamBases);
+            OleDbDataReader reader = command.ExecuteReader();
+
+            List<string> plates = new List<string>();
+
+            while (reader.Read())
+            {
+                if (!reader.HasRows)
+                {
+                    continue;
+                }
+                string sheetCode = reader.GetString(0);
+                plates.Add(sheetCode);
+            }
+
+            reader.Close();
+            this.closeAicamBases();
+            return plates;
+        }
+
         public List<T_MaterialSheet> GetNotSynchronized(Listener listner)
         {
             T_MaterialSheet plate_sql = new T_MaterialSheet();
@@ -351,6 +379,14 @@ namespace ABL
             }
             reader.Close();
             return data;
+        }
+
+        public void DeletePlates(string plates)
+        {
+            string sql = "DELETE FROM plateWarehouseSynced WHERE SheetCode in (" + plates + ")";
+
+            OleDbCommand oleDb = new OleDbCommand(sql, this.AicamBases);
+            oleDb.ExecuteNonQuery();
         }
     }
 }

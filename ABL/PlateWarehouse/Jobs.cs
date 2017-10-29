@@ -77,24 +77,7 @@ namespace ABL
         private void JobChangeQuantity(JobModel job)
         {
             JobChangeQuantityData data = JsonConvert.DeserializeObject<JobChangeQuantityData>(job.data);
-
-            string action = "+";
-
-            switch (data.type) {
-                case 0: //Przyjęcie
-                case 3: //Korekta dodająca
-                    action = "+";
-                    break;
-                case 1: //Wydanie zewnętrzne
-                case 2: //Wydanie wewnętrzne
-                case 4: //Korekta odejmująca
-                case 5: //Zagubiona
-                case 6: //Złomowanie
-                    action = "-";
-                    break;
-            }
-
-            this.listener.db.ChangeQuantity(job.SheetCode, action + data.quantity);
+            this.listener.db.ChangeQuantity(job.SheetCode, data.quantity);
         }
 
         private void JobTrash(JobModel job)

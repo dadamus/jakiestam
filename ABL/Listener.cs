@@ -389,7 +389,7 @@ namespace ABL
                     //Check for jobs
                     listener.jobs.GetJobs();
                     if (listener.jobs.GetJobsInQueue() > 0) {
-                        
+                        listener.jobs.DoJobs();
                     }
 
                     //Sync material
@@ -484,7 +484,7 @@ namespace ABL
 
                         string toDelete = null;
                         for (int i = 0; i < platesDeleteCount; i++) {
-                            if (toDelete !== null) {
+                            if (toDelete != null) {
                                 toDelete += ", ";
                             }
                             toDelete += '"' + platesToDelete[i] + '"';

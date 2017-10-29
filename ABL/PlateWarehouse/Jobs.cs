@@ -31,12 +31,15 @@ namespace ABL
             string webResponse = client.DownloadString(Form1.phpScript + "?p_a=plate_warehouse_get_jobs");
             this.jobs = JsonConvert.DeserializeObject<List<JobModel>>(webResponse);
             this.jobsInQueue = jobs.Count;
+
+            this.listener.AddToLog("Znalazlem " + this.jobsInQueue + " nowych zdan!");
         }
 
         public void DoJobs()
         {
             List<int> done = new List<int>();
 
+            this.listener.AddToLog("Robie zadania...");
             foreach (JobModel job in this.jobs) 
             {
                 switch (job.job) {
@@ -53,6 +56,7 @@ namespace ABL
             post.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
             string webResponse = post.UploadString(Form1.phpScript + "?p_a=plate_warehouse_sync_jobs", "toSync=" + dataToUpload);
 
+            this.listener.AddToLog("Koniec...");
             this.jobs.Clear();
         }
 

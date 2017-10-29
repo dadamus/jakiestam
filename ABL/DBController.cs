@@ -290,7 +290,7 @@ namespace ABL
             T_MaterialSheet plate_sql = new T_MaterialSheet();
             string sql = "SELECT s.* FROM `plateWarehouseSynced` s LEFT JOIN `T_MaterialSheet` tms ON ";
             sql += plate_sql.GenerateCheckSyncedSql("s", "tms");
-            sql += " WHERE tms.SheetCode IS NULL";
+            sql += " WHERE tms.SheetCode IS NULL AND s.trashed = 0";
 
             this.openAicamBases();
             OleDbCommand command = new OleDbCommand(sql, this.AicamBases);
@@ -388,6 +388,18 @@ namespace ABL
             this.openAicamBases();
             OleDbCommand oleDb = new OleDbCommand(sql, this.AicamBases);
             oleDb.ExecuteNonQuery();
+            this.closeAicamBases();
+        }
+
+        public void TrashPlate(string SheetCode)
+        {
+            string updateSql = "UPDATE plateWarehouseSynced SET trashed = 1 WHERE SheetCode = '" + SheetCode + "';";
+            updateSql += "DELETE FROM T_MaterialSheet WHERE SheetCode = '" + SheetCode + "';";
+
+            this.openAicamBases();
+            OleDbCommand oleUpdate = new OleDbCommand(updateSql, this.AicamBases);
+            oleUpdate.ExecuteNonQuery();
+            this.closeAicamBases();
         }
     }
 }

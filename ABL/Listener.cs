@@ -25,6 +25,7 @@ namespace ABL
         public List<TcpClient> serwer_client;
         public bool serverStarted = false;
         public string SheetImageDir;
+        public Jobs jobs;
 
         public bool syncBlocked = false;
 
@@ -59,6 +60,7 @@ namespace ABL
             this.sftp = sftp;
             this.DataReportDb = DataReportDb;
             this.SheetImageDir = SheetImageDir;
+            this.jobs = new Jobs(this);
 
             this.lastEdited = new lastEditedFile(null, null, DateTime.Now);
         }
@@ -297,7 +299,7 @@ namespace ABL
             try {
                 WebClient web = new WebClient();
                 web.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-                string webResponse = web.UploadString(Form1.phpScript + "?p_a=plate_warehouse_sync_delete", "toSync=[" + dataToDelete + "]");
+                string webResponse = web.UploadString(Form1.phpScript + "?p_a=plate_warehouse_sync_delete", "toSync=" + dataToDelete);
             } 
             catch(Exception) 
             {
@@ -384,6 +386,12 @@ namespace ABL
 
                 if (!listener.syncBlocked)
                 {
+                    //Check for jobs
+                    listener.jobs.GetJobs();
+                    if (listener.jobs.GetJobsInQueue() > 0) {
+                        
+                    }
+
                     //Sync material
                     List<T_material> materialToSync = listener.db.GetNotSynchronizedMaterial(listener);
                     int materialCount = materialToSync.Count;
@@ -466,10 +474,11 @@ namespace ABL
                     platesToSync.Clear();
 
                     //Synchronizacja usunietych
-                    if (platesToDelete.Count > 0) 
+                    int platesDeleteCount = platesToDelete.Count;
+
+                    if (platesDeleteCount > 0) 
                     {
-                        listener.SyncStatusChange(0, 0, platesToDelete.Count, "Synchronizacja usunietych");
-                        int platesDeleteCount = platesToDelete.Count;
+                        listener.SyncStatusChange(0, 0, platesDeleteCount, "Synchronizacja usunietych");
                         string plates = JsonConvert.SerializeObject(platesToDelete);
                         listener.doMdbToMysqlDelete(plates, listener);
 
@@ -480,7 +489,9 @@ namespace ABL
                             }
                             toDelete += '"' + platesToDelete[i] + '"';
                         }
+
                         listener.db.DeletePlates(toDelete);
+                        listener.SyncStatusChange(100, platesDeleteCount, platesDeleteCount, "Synchronizacja usunietych - Koniec");
                     }
 
                     platesToDelete.Clear();

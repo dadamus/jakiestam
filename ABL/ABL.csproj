@@ -140,6 +140,8 @@
     <Compile Include="Costing\Plate\ProductionData\ProgramData.cs" />
     <Compile Include="Costing\Plate\ProductionData\MaterialData.cs" />
     <Compile Include="PhpData.cs" />
+    <Compile Include="PlateWarehouse\Jobs.cs" />
+    <Compile Include="PlateWarehouse\JobModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

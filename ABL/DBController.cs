@@ -393,12 +393,15 @@ namespace ABL
 
         public void TrashPlate(string SheetCode)
         {
-            string updateSql = "UPDATE plateWarehouseSynced SET trashed = 1 WHERE SheetCode = '" + SheetCode + "'; ";
-            updateSql += "DELETE FROM T_MaterialSheet WHERE SheetCode = '" + SheetCode + "'";
+            string updateSql = "UPDATE plateWarehouseSynced SET trashed = 1 WHERE SheetCode = '" + SheetCode + "'";
+            string deleteSql = "DELETE FROM T_MaterialSheet WHERE SheetCode = '" + SheetCode + "'";
 
             this.openAicamBases();
             OleDbCommand oleUpdate = new OleDbCommand(updateSql, this.AicamBases);
             oleUpdate.ExecuteNonQuery();
+
+            OleDbCommand oleDelete = new OleDbCommand(deleteSql, this.AicamBases);
+            oleDelete.ExecuteNonQuery();
             this.closeAicamBases();
         }
     }

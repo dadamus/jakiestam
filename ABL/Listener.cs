@@ -469,12 +469,12 @@ namespace ABL
                     if (platesToDelete.Count > 0) 
                     {
                         listener.SyncStatusChange(0, 0, platesToDelete.Count, "Synchronizacja usunietych");
-                        int platesCount = platesToDelete.Count;
+                        int platesDeleteCount = platesToDelete.Count;
                         string plates = JsonConvert.SerializeObject(platesToDelete);
                         listener.doMdbToMysqlDelete(plates, listener);
 
                         string toDelete = null;
-                        for (int i = 0; i < platesCount; i++) {
+                        for (int i = 0; i < platesDeleteCount; i++) {
                             if (toDelete !== null) {
                                 toDelete += ", ";
                             }

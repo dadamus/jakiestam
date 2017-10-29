@@ -385,6 +385,7 @@ namespace ABL
         {
             string sql = "DELETE FROM plateWarehouseSynced WHERE SheetCode in (" + plates + ")";
 
+            this.openAicamBases();
             OleDbCommand oleDb = new OleDbCommand(sql, this.AicamBases);
             oleDb.ExecuteNonQuery();
         }

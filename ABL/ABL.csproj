@@ -142,6 +142,7 @@
     <Compile Include="PhpData.cs" />
     <Compile Include="PlateWarehouse\Jobs.cs" />
     <Compile Include="PlateWarehouse\JobModel.cs" />
+    <Compile Include="PlateWarehouse\JobChangeQuantityData.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

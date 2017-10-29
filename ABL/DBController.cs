@@ -404,5 +404,19 @@ namespace ABL
             oleDelete.ExecuteNonQuery();
             this.closeAicamBases();
         }
+
+        public void ChangeQuantity(string SheetCode, string value)
+        {
+            string updateSql = "UPDATE plateWarehouseSynced SET QtyAvailable = QtyAvailable " + value + " WHERE SheetCode = '" + SheetCode + "'";
+            string updateSql2 = "UPDATE T_MaterialSheet SET QtyAvailable = QtyAvailable " + value + " WHERE SheetCode = '" + SheetCode + "'";
+
+            this.openAicamBases();
+            OleDbCommand oleUpdate = new OleDbCommand(updateSql, this.AicamBases);
+            oleUpdate.ExecuteNonQuery();
+
+            OleDbCommand oleDelete = new OleDbCommand(updateSql2, this.AicamBases);
+            oleDelete.ExecuteNonQuery();
+            this.closeAicamBases();
+        }
     }
 }

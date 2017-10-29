@@ -430,7 +430,6 @@ namespace ABL
                         }
                     }
                     materialToSync.Clear();
-                   
 
                     //Sync main plate
                     List<T_MaterialSheet> platesToSync = listener.db.GetNotSynchronized(listener);

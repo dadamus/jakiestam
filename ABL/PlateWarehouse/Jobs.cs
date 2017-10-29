@@ -28,11 +28,19 @@ namespace ABL
 
         public void GetJobs()
         {
-            string webResponse = client.DownloadString(Form1.phpScript + "?p_a=plate_warehouse_get_jobs");
-            this.jobs = JsonConvert.DeserializeObject<List<JobModel>>(webResponse);
-            this.jobsInQueue = jobs.Count;
+            try
+            {
+                string webResponse = client.DownloadString(Form1.phpScript + "?p_a=plate_warehouse_get_jobs");
+                this.jobs = JsonConvert.DeserializeObject<List<JobModel>>(webResponse);
+                this.jobsInQueue = jobs.Count;
 
-            this.listener.AddToLog("Znalazlem " + this.jobsInQueue + " nowych zdan!");
+                if (this.jobsInQueue > 0)
+                {
+                    this.listener.AddToLog("Znalazlem " + this.jobsInQueue + " nowych zdan!");
+                }
+            } catch (Exception ex) {
+                this.listener.AddToLog("Wystapil blad: " + ex.Message);
+            }
         }
 
         public void DoJobs()
@@ -45,6 +53,9 @@ namespace ABL
                 switch (job.job) {
                     case "trash":
                         this.JobTrash(job);
+                        break;
+                    case "insert":
+                        this.JobInsert(job);
                         break;
                 }
 
@@ -63,6 +74,13 @@ namespace ABL
         private void JobTrash(JobModel job)
         {
             this.listener.db.TrashPlate(job.SheetCode);
+        }
+
+        private void JobInsert(JobModel job)
+        {
+            T_MaterialSheet sheet = JsonConvert.DeserializeObject<T_MaterialSheet>(job.data);
+            this.listener.db.InsertPlate(sheet);
+            this.listener.db.InsertPlateSynced(sheet);
         }
     }
 }

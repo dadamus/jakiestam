@@ -394,7 +394,7 @@ namespace ABL
         public void TrashPlate(string SheetCode)
         {
             string updateSql = "UPDATE plateWarehouseSynced SET trashed = 1 WHERE SheetCode = '" + SheetCode + "';";
-            updateSql += "DELETE FROM T_MaterialSheet WHERE SheetCode = '" + SheetCode + "';";
+            updateSql += "DELETE FROM T_MaterialSheet WHERE SheetCode = '" + SheetCode + "'";
 
             this.openAicamBases();
             OleDbCommand oleUpdate = new OleDbCommand(updateSql, this.AicamBases);

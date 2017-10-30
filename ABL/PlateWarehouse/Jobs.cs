@@ -50,6 +50,8 @@ namespace ABL
             this.listener.AddToLog("Robie zadania...");
             foreach (JobModel job in this.jobs) 
             {
+                this.listener.AddToLog(job.job + ": " + job.SheetCode);
+
                 switch (job.job) {
                     case "trash":
                         this.JobTrash(job);

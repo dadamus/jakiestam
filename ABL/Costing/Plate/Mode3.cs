@@ -399,7 +399,7 @@ namespace ABL.Costing.Plate
 
         private int ValidDetailName(string name)
         {
-            if (name.IndexOf('+') < 0)
+            if (name.IndexOf('-') < 0)
             {
                 return 0;
             }

@@ -48,7 +48,10 @@ namespace ABL.Costing.Plate
 
             WebClient client = new WebClient();
             client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-            client.UploadStringAsync(new Uri(Form1.phpScript + "?p_a=plate_production_sync"), "data=" + data);
+            string webresponse = client.UploadString(Form1.phpScript + "?p_a=plate_production_sync", "data=" + data);
+            byte[] bytes = Encoding.Default.GetBytes(webresponse);
+            webresponse = Encoding.UTF8.GetString(bytes);
+            this.listener.AddToLog("Odpowiedz od php: " + webresponse);
             return true;
         }
 

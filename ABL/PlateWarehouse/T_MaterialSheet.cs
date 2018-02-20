@@ -35,9 +35,10 @@ namespace ABL
 
             string sql_header = "";
             string sql_data = "";
-           
+
             foreach(var p in properties)
             {
+
                 if (sql_header.Length > 0)
                 {
                     sql_header += ", ";

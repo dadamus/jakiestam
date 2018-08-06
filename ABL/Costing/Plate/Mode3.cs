@@ -342,6 +342,7 @@ namespace ABL.Costing.Plate
                 XmlDocument scheduleSheetXML = new XmlDocument();
                 scheduleSheetXML.Load(this.dir + "/ScheduleSheet.xml");
                 XmlNodeList detailsNode = scheduleSheetXML.GetElementsByTagName("Sheet");
+                int lastImageId = 0;
 
                 for (int n = 0; n < detailsNode.Count; n++)
                 {
@@ -349,8 +350,12 @@ namespace ABL.Costing.Plate
                     XmlNodeList parameters = detail.ChildNodes;
 
                     //Upload obrazku do ramki
-                    int imageId = n + 1;
-                    this.ImageUpload(this.listener.SheetImageDir + imageId + ".bmp");
+                    do
+                    {
+                        lastImageId++;
+                    } while (!File.Exists(this.listener.SheetImageDir + lastImageId + ".bmp"));
+                    this.ImageUpload(this.listener.SheetImageDir + lastImageId + ".bmp");
+
 
                     Mode3Data.ProgramData programData = new Mode3Data.ProgramData();
 

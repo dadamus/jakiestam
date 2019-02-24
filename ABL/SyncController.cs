@@ -239,7 +239,7 @@ namespace ABL
             WebClient client = new WebClient();
             this.listener.AddToLog("Wysylam wiadomosc");
 
-            string dataSQL;
+            string dataSQL = "";
 
             switch (type)
             {
@@ -264,6 +264,5 @@ namespace ABL
             this.listener.AddToLog("Odpowiedz od php: " + webresponse);
         }
 
-        private void 
     }
 }

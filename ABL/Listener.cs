@@ -30,6 +30,7 @@ namespace ABL
         public bool syncBlocked = false;
 
         public DBController db;
+        public SyncController syncController;
 
         public Listener
         (
@@ -62,6 +63,7 @@ namespace ABL
             this.SheetImageDir = SheetImageDir;
             this.jobs = new Jobs(this);
 
+            this.syncController = new SyncController(this);
             this.lastEdited = new lastEditedFile(null, null, DateTime.Now);
         }
 
@@ -431,95 +433,7 @@ namespace ABL
                     }
                     materialToSync.Clear();
 
-                    //Sync main plate
-                    List<T_MaterialSheet> platesToSync = listener.db.GetNotSynchronized(listener);
-                    List<string> platesToDelete = listener.db.GetToDelete(listener);
 
-                    int platesCount = platesToSync.Count;
-                    if (platesCount + platesToDelete.Count > 0)
-                    {
-                        listener.AddToLog("Synchronizacja mdb -> mysql: Rozpoczeta!");
-                        listener.AddToLog("Znaleziono " + (platesCount + platesToDelete.Count) + " zmienionych blach");
-
-                        listener.SyncStatusChange(0, 0, platesCount);
-
-                        string dataToUpload = "";
-
-                        for (int i = 0; i < platesCount; i++)
-                        {
-                            string plateData = JsonConvert.SerializeObject(platesToSync[i]);
-                            if (dataToUpload.Length > 0)
-                            {
-                                dataToUpload += ", ";
-                            }
-                            dataToUpload += plateData;
-
-                            if (dataToUpload.Length > 5000)
-                            {
-                                listener.doMdbToMysqlSync(dataToUpload, listener);
-                                double percent = Math.Floor((double)(i * 100.0 / platesCount));
-                                listener.SyncStatusChange(percent, i, platesCount);
-                                dataToUpload = "";
-                            }
-                        }
-
-                        if (dataToUpload.Length > 0)
-                        {
-                            listener.doMdbToMysqlSync(dataToUpload, listener);
-                            listener.SyncStatusChange(100, platesCount, platesCount);
-                            dataToUpload = "";
-                        }
-                    }
-                    platesToSync.Clear();
-
-                    //Synchronizacja usunietych
-                    int platesDeleteCount = platesToDelete.Count;
-
-                    if (platesDeleteCount > 0) 
-                    {
-                        listener.SyncStatusChange(0, 0, platesDeleteCount, "Synchronizacja usunietych");
-                        string plates = JsonConvert.SerializeObject(platesToDelete);
-                        listener.doMdbToMysqlDelete(plates, listener);
-
-                        string toDelete = null;
-                        for (int i = 0; i < platesDeleteCount; i++) {
-                            if (toDelete != null) {
-                                toDelete += ", ";
-                            }
-                            toDelete += '"' + platesToDelete[i] + '"';
-                        }
-
-                        listener.db.DeletePlates(toDelete);
-                        listener.SyncStatusChange(100, platesDeleteCount, platesDeleteCount, "Synchronizacja usunietych - Koniec");
-                    }
-
-                    platesToDelete.Clear();
-
-                    //Sync memo
-                    listener.db.openAicamBases();
-                    List<T_MaterialSheet> memoSync = listener.db.getNotSyncedSkeletonData("T_MaterialSheet", "plateWarehouseSynced");
-                    listener.db.closeAicamBases();
-                    int memoCount = memoSync.Count;
-                    if (memoCount > 0)
-                    {
-                        listener.AddToLog("Synchronizacja memo: " + memoCount);
-                        listener.SyncStatusChange(0, 0, memoCount, "Synchronizacja MEMO");
-                        for (int i = 0; i < memoCount; i++)
-                        {
-                            try
-                            {
-                                listener.db.insertMemo("plateWarehouseSynced", "SkeletonData", memoSync[i].SheetCode, memoSync[i].SkeletonData);
-                            } catch (Exception ex)
-                            {
-                                listener.AddToLog("Blad synchronizacji memo: " + memoSync[i].SheetCode + " " + ex.Message);
-                            }
-
-                            double percent = Math.Floor((double)(i * 100.0 / memoCount));
-                            listener.SyncStatusChange(percent, i, memoCount, "Synchronizacja MEMO");
-                        }
-                        listener.SyncStatusChange(100, memoCount, memoCount, "Synchronizacja MEMO");
-                    }
-                    memoSync.Clear();
                 }
 
                 List<FileInfo> lastFile = listener.getLastEdited();

@@ -28,6 +28,36 @@ namespace ABL
             this.SkeletonData = "";
         }
 
+        public string GenerateUpdateSQL()
+        {
+            object obj = this;
+            var properties = obj.GetType().GetProperties();
+
+            string sql_data = "";
+
+            foreach (var p in properties)
+            {
+
+                if (sql_data.Length > 0)
+                {
+                    sql_data += ", ";
+                }
+
+                var value = p.GetValue(this, null);
+
+                string mark = "'";
+
+                if (typeof(int) == value.GetType() || typeof(float) == value.GetType())
+                {
+                    mark = "";
+                }
+
+                sql_data += "`" + p.Name + "` = " + mark + value + mark;
+            }
+
+            return sql_data;
+        }
+
         public string GenerateInsertSQL()
         {
             object obj = this;

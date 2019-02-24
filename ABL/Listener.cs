@@ -433,7 +433,7 @@ namespace ABL
                     }
                     materialToSync.Clear();
 
-
+                    listener.syncController.Sync();
                 }
 
                 List<FileInfo> lastFile = listener.getLastEdited();

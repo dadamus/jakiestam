@@ -8,7 +8,8 @@ namespace ABL
 {
     public class SyncController
     {
-        private string pathToAicamBases = "C:\\Program Files (x86)\\Amada\\AI-CAM\\AIC_Main\\AicamBases.mdb";
+        //private string pathToAicamBases = "C:\\Program Files (x86)\\Amada\\AI-CAM\\AIC_Main\\AicamBases.mdb";
+        private string pathToAicamBases = "Y:\\temp2\\baza\\AicamBases.mdb";
         private OleDbConnection AicamBases;
         protected Listener listener;
 

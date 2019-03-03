@@ -105,7 +105,7 @@ namespace ABL
             string sql = "SELECT tms.* FROM `T_MaterialSheet` tms LEFT JOIN `plateWarehouseSynced` s ON ";
             sql += MaterialSheet.GenerateCheckSyncedSql("tms", "s");
             sql += " `plateWarehouseSynced` si ON si.SheetCode = tms.SheetCode";
-            sql += " WHERE s.SheetCode IS NULL AND tms.SheetCode IS NOT NULL";
+            sql += " WHERE s.SheetCode = NULL AND tms.SheetCode != NULL";
 
             OleDbCommand query = new OleDbCommand(sql, this.AicamBases);
             OleDbDataReader reader = query.ExecuteReader();

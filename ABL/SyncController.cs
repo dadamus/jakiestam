@@ -44,7 +44,7 @@ namespace ABL
         private List<T_MaterialSheet> GetNewSheets()
         {
             this.OpenAicamBases();
-            string sql = "SELECT tms.* FROM `T_MaterialSheet` tms LEFT JOIN `plateWarehouseSynced` s ON s.SheetCode = tms.SheetCode WHERE s.SheetCode IS NULL";
+            string sql = "SELECT tms.* FROM `T_MaterialSheet` tms LEFT JOIN `platewarehousesynced` s ON s.SheetCode = tms.SheetCode WHERE s.SheetCode IS NULL";
             OleDbCommand query = new OleDbCommand(sql, this.AicamBases);
             OleDbDataReader reader = query.ExecuteReader();
 
@@ -86,7 +86,7 @@ namespace ABL
 
             foreach (T_MaterialSheet plate in toInsert)
             {
-                string insertSQL = "INSERT INTO plateWarehouseSynced " + plate.GenerateInsertSQL();
+                string insertSQL = "INSERT INTO platewarehousesynced " + plate.GenerateInsertSQL();
                 OleDbCommand command = new OleDbCommand(insertSQL, this.AicamBases);
                 command.ExecuteNonQuery();
 
@@ -102,7 +102,7 @@ namespace ABL
 
             T_MaterialSheet MaterialSheet = new T_MaterialSheet();
 
-            string sql = "SELECT tms.* FROM `T_MaterialSheet` tms LEFT JOIN `plateWarehouseSynced` s ON ";
+            string sql = "SELECT tms.* FROM `T_MaterialSheet` tms LEFT JOIN `platewarehousesynced` s ON ";
             sql += MaterialSheet.GenerateCheckSyncedSql("tms", "s");
             sql += " WHERE s.SheetCode = NULL AND tms.SheetCode != NULL";
 
@@ -148,7 +148,7 @@ namespace ABL
 
             foreach (T_MaterialSheet plate in toUpdate)
             {
-                string updateSQL = "UPDATE plateWarehouseSynced SET " + plate.GenerateUpdateSQL() + " WHERE SheetCode = '" + plate.SheetCode + "'";
+                string updateSQL = "UPDATE platewarehousesynced SET " + plate.GenerateUpdateSQL() + " WHERE SheetCode = '" + plate.SheetCode + "'";
                 OleDbCommand command = new OleDbCommand(updateSQL, this.AicamBases);
                 command.ExecuteNonQuery();
 
@@ -161,7 +161,7 @@ namespace ABL
         private List<T_MaterialSheet> GetDeletedSheets()
         {
             this.OpenAicamBases();
-            string sql = "SELECT s.* FROM `plateWarehouseSynced` s LEFT JOIN `T_MaterialSheet` tms ON s.SheetCode = tms.SheetCode WHERE tsm.SheetCode IS NULL";
+            string sql = "SELECT s.* FROM `platewarehousesynced` s LEFT JOIN `T_MaterialSheet` tms ON s.SheetCode = tms.SheetCode WHERE tsm.SheetCode IS NULL";
             OleDbCommand query = new OleDbCommand(sql, this.AicamBases);
             OleDbDataReader reader = query.ExecuteReader();
 
@@ -205,7 +205,7 @@ namespace ABL
 
             foreach (T_MaterialSheet plate in toDelete)
             {
-                string updateSQL = "DELETE FROM plateWarehouseSynced WHERE SheetCode = '" + plate.SheetCode + "'";
+                string updateSQL = "DELETE FROM platewarehousesynced WHERE SheetCode = '" + plate.SheetCode + "'";
                 OleDbCommand command = new OleDbCommand(updateSQL, this.AicamBases);
                 command.ExecuteNonQuery();
 

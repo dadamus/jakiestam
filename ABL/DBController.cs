@@ -288,7 +288,7 @@ namespace ABL
         public List<string> GetToDelete(Listener listner)
         {
             T_MaterialSheet plate_sql = new T_MaterialSheet();
-            string sql = "SELECT s.* FROM `plateWarehouseSynced` s LEFT JOIN `T_MaterialSheet` tms ON ";
+            string sql = "SELECT s.* FROM `platewarehousesynced` s LEFT JOIN `T_MaterialSheet` tms ON ";
             sql += plate_sql.GenerateCheckSyncedSql("s", "tms");
             sql += " WHERE tms.SheetCode IS NULL AND s.trashed = 0";
 
@@ -316,7 +316,7 @@ namespace ABL
         public List<T_MaterialSheet> GetNotSynchronized(Listener listner)
         {
             T_MaterialSheet plate_sql = new T_MaterialSheet();
-            string sql = "SELECT tms.* FROM `T_MaterialSheet` tms LEFT JOIN `plateWarehouseSynced` s ON ";
+            string sql = "SELECT tms.* FROM `T_MaterialSheet` tms LEFT JOIN `platewarehousesynced` s ON ";
             sql += plate_sql.GenerateCheckSyncedSql("tms", "s");
             sql += " WHERE s.synced IS NULL";
 
@@ -381,7 +381,7 @@ namespace ABL
 
         public void DeletePlates(string plates)
         {
-            string sql = "DELETE FROM plateWarehouseSynced WHERE SheetCode in (" + plates + ")";
+            string sql = "DELETE FROM platewarehousesynced WHERE SheetCode in (" + plates + ")";
 
             this.openAicamBases();
             OleDbCommand oleDb = new OleDbCommand(sql, this.AicamBases);
@@ -391,7 +391,7 @@ namespace ABL
 
         public void TrashPlate(string SheetCode)
         {
-            string updateSql = "UPDATE plateWarehouseSynced SET trashed = 1 WHERE SheetCode = '" + SheetCode + "'";
+            string updateSql = "UPDATE platewarehousesynced SET trashed = 1 WHERE SheetCode = '" + SheetCode + "'";
             string deleteSql = "DELETE FROM T_MaterialSheet WHERE SheetCode = '" + SheetCode + "'";
 
             this.openAicamBases();
@@ -405,7 +405,7 @@ namespace ABL
 
         public void ChangeQuantity(string SheetCode, string value)
         {
-            string updateSql = "UPDATE plateWarehouseSynced SET QtyAvailable = " + value + " WHERE SheetCode = '" + SheetCode + "'";
+            string updateSql = "UPDATE platewarehousesynced SET QtyAvailable = " + value + " WHERE SheetCode = '" + SheetCode + "'";
             string updateSql2 = "UPDATE T_MaterialSheet SET QtyAvailable = " + value + " WHERE SheetCode = '" + SheetCode + "'";
 
             this.openAicamBases();

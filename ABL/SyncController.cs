@@ -253,6 +253,9 @@ namespace ABL
                     break;
             }
 
+            var dataBytes = System.Text.Encoding.UTF8.GetBytes(dataSQL);
+            dataSQL = System.Convert.ToBase64String(dataBytes);
+
             client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
             string webresponse = client.UploadString(Form1.phpScript + "?p_a=" + type, "data=" + dataSQL);
             byte[] bytes = Encoding.Default.GetBytes(webresponse);

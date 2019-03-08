@@ -241,7 +241,7 @@ namespace ABL
             switch (type)
             {
                 case "insert_plate_warehouse":
-                    dataSQL = materialSheet.GenerateInsertSQL();
+                    dataSQL = materialSheet.GenerateInsertSQL(true);
                     break;
 
                 case "update_plate_warehouse":

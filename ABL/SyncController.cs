@@ -161,7 +161,7 @@ namespace ABL
         private List<T_MaterialSheet> GetDeletedSheets()
         {
             this.OpenAicamBases();
-            string sql = "SELECT s.* FROM `platewarehousesynced` s LEFT JOIN `T_MaterialSheet` tms ON s.SheetCode = tms.SheetCode WHERE tsm.SheetCode IS NULL";
+            string sql = "SELECT s.* FROM `platewarehousesynced` s LEFT JOIN `T_MaterialSheet` tms ON s.SheetCode = tms.SheetCode WHERE tms.SheetCode IS NULL";
             OleDbCommand query = new OleDbCommand(sql, this.AicamBases);
             OleDbDataReader reader = query.ExecuteReader();
 

@@ -55,8 +55,8 @@ namespace ABL
    `Priority` SMALLINT,          
    `synced` INTEGER         
 );                    **/
-                OleDbCommand query = new OleDbCommand("CREATE TABLE `platewarehousesynced` ( `MaterialName` VARCHAR(50),`Thickness` FLOAT,`MaterialTypeName` VARCHAR(50),`Clearance` FLOAT,`Comment` text,`synced` INTEGER)");
-                query.ExecuteNonQuery();
+                //OleDbCommand query = new OleDbCommand("CREATE TABLE `platewarehousesynced` (`SheetCode` TEXT(255),\   `MaterialName` TEXT(50),\n   `QtyAvailable` INTEGER,\n   `GrainDirection` INTEGER,      \n   `Width` FLOAT,                        \n   `Height` FLOAT,\n   `SpecialInfo` TEXT(50),\n   `Comment` MEMO,\n   `SheetType` TEXT(50),\n   `SkeletonFile` TEXT(150),\n   `SkeletonData` MEMO,       \n   `MD5` TEXT(30),\n   `Price` FLOAT,                 \n   `Priority` SMALLINT");
+                //query.ExecuteNonQuery();
             }
             catch (Exception)
             {

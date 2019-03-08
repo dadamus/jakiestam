@@ -66,7 +66,6 @@ namespace ABL
                 plate.Width = (float)reader.GetDouble(4);
                 plate.Height = (float)reader.GetDouble(5);
                 plate.SpecialInfo = reader.GetString(6);
-                plate.Comment = "";
                 plate.SheetType = reader.GetString(8);
                 plate.SkeletonFile = reader.GetValue(9).ToString();
                 plate.MD5 = reader.GetValue(11).ToString();
@@ -105,7 +104,6 @@ namespace ABL
 
             string sql = "SELECT tms.* FROM `T_MaterialSheet` tms LEFT JOIN `plateWarehouseSynced` s ON ";
             sql += MaterialSheet.GenerateCheckSyncedSql("tms", "s");
-            sql += " `plateWarehouseSynced` si ON si.SheetCode = tms.SheetCode";
             sql += " WHERE s.SheetCode = NULL AND tms.SheetCode != NULL";
 
             OleDbCommand query = new OleDbCommand(sql, this.AicamBases);
@@ -129,7 +127,6 @@ namespace ABL
                 plate.Width = (float)reader.GetDouble(4);
                 plate.Height = (float)reader.GetDouble(5);
                 plate.SpecialInfo = reader.GetString(6);
-                plate.Comment = "";
                 plate.SheetType = reader.GetString(8);
                 plate.SkeletonFile = reader.GetValue(9).ToString();
                 plate.MD5 = reader.GetValue(11).ToString();

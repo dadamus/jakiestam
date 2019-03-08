@@ -15,7 +15,6 @@ namespace ABL
         public float Width { get; set; }
         public float Height { get; set; }
         public string SpecialInfo { get; set; }
-        public string Comment { get; set; }
         public string SheetType { get; set; }
         public string SkeletonFile { get; set; }
         public string SkeletonData { get; set; }

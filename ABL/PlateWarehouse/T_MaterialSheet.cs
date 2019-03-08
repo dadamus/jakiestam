@@ -57,7 +57,7 @@ namespace ABL
             return sql_data;
         }
 
-        public string GenerateInsertSQL()
+        public string GenerateInsertSQL(bool createdDate = false)
         {
             object obj = this;
             var properties = obj.GetType().GetProperties();
@@ -86,7 +86,14 @@ namespace ABL
 
                 sql_data += mark + value + mark;
             }
-            
+
+            if (createdDate)
+            {
+                DateTime date = DateTime.Now;
+                sql_header += ", createdDate";
+                sql_data += ", " + date.ToString("yyyy-MM-d HH:mm:s");
+            }
+
             return "(" + sql_header + ") VALUES (" + sql_data + ")";
         }
 

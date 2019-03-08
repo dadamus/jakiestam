@@ -8,8 +8,8 @@ namespace ABL
 {
     public class SyncController
     {
-        //private string pathToAicamBases = "C:\\Program Files (x86)\\Amada\\AI-CAM\\AIC_Main\\AicamBases.mdb";
-        private string pathToAicamBases = "Y:\\temp2\\baza\\AicamBases.mdb";
+        private string pathToAicamBases = "C:\\Program Files (x86)\\Amada\\AI-CAM\\AIC_Main\\AicamBases.mdb";
+        //private string pathToAicamBases = "Y:\\temp2\\baza\\AicamBases.mdb";
         private OleDbConnection AicamBases;
         protected Listener listener;
 
@@ -104,7 +104,7 @@ namespace ABL
 
             string sql = "SELECT tms.* FROM `T_MaterialSheet` tms LEFT JOIN `platewarehousesynced` s ON ";
             sql += MaterialSheet.GenerateCheckSyncedSql("tms", "s");
-            sql += " WHERE s.SheetCode = NULL AND tms.SheetCode != NULL";
+            sql += " WHERE s.SheetCode IS NULL AND tms.SheetCode IS NOT NULL";
 
             OleDbCommand query = new OleDbCommand(sql, this.AicamBases);
             OleDbDataReader reader = query.ExecuteReader();

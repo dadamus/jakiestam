@@ -90,8 +90,8 @@ namespace ABL
             if (createdDate)
             {
                 DateTime date = DateTime.Now;
-                sql_header += ", createDate";
-                sql_data += ", " + date.ToString("yyyy-MM-d HH:mm:s");
+                sql_header += ", `createDate`";
+                sql_data += ", '" + date.ToString("yyyy-MM-d HH:mm:s") + "'";
             }
 
             return "(" + sql_header + ") VALUES (" + sql_data + ")";

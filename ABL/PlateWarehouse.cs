@@ -44,7 +44,6 @@ namespace ABL
                 plate.Width = (float)row.Width;
                 plate.Height = (float)row.Height;
                 plate.SpecialInfo = row.SpecialInfo;
-                plate.Comment = row.Comment;
                 plate.SheetType = row.SheetType;
                 plate.SkeletonFile = row.SkeletonFile;
                 plate.SkeletonData = row.SkeletonData;

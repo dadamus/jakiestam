@@ -183,7 +183,6 @@ namespace ABL
                 plate.Width = (float)reader.GetDouble(4);
                 plate.Height = (float)reader.GetDouble(5);
                 plate.SpecialInfo = reader.GetString(6);
-                plate.Comment = "";
                 plate.SheetType = reader.GetString(8);
                 plate.SkeletonFile = reader.GetValue(9).ToString();
                 plate.MD5 = reader.GetValue(11).ToString();

@@ -245,7 +245,7 @@ namespace ABL
                     break;
 
                 case "update_plate_warehouse":
-                    dataSQL = materialSheet.GenerateUpdateSQL();
+                    dataSQL = materialSheet.GenerateUpdateSQL() + " WHERE SheetCode = '" + materialSheet.SheetCode + "'";
                     break;
 
                 case "delete_plate_warehouse":

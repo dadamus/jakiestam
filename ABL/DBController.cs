@@ -241,12 +241,12 @@ namespace ABL
 
         public void InsertPlateSynced(T_MaterialSheet plate)
         {
-            this.AicamBases.Open();
+            this.openAicamBases();
             string sCommand = "INSERT INTO `platewarehousesynced` " + plate.GenerateInsertSQL();
 
             OleDbCommand command = new OleDbCommand(sCommand, this.AicamBases);
             int response = command.ExecuteNonQuery();
-            this.AicamBases.Close();
+            this.closeAicamBases();
         }
 
         public List<T_material> GetNotSynchronizedMaterial(Listener listner)
@@ -391,7 +391,7 @@ namespace ABL
 
         public void TrashPlate(string SheetCode)
         {
-            string updateSql = "UPDATE platewarehousesynced SET trashed = 1 WHERE SheetCode = '" + SheetCode + "'";
+            string updateSql = "DELETE FROM platewarehousesynced WHERE SheetCode = '" + SheetCode + "'";
             string deleteSql = "DELETE FROM T_MaterialSheet WHERE SheetCode = '" + SheetCode + "'";
 
             this.openAicamBases();
